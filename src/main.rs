@@ -3,8 +3,6 @@ use jex_compiler_server::jex_commands::{create_jex_folders, run_jex, RunJexError
 
 extern crate env_logger;
 
-const PORT: &str = env!("PORT");
-
 #[post("/")]
 async fn index(source_code: String) -> impl Responder {
     match run_jex(source_code).await {
@@ -22,8 +20,10 @@ async fn main() -> std::io::Result<()> {
 
     create_jex_folders().await;
 
+    let port = std::env::var("PORT").expect("Could not get PORT env variable");
+
     HttpServer::new(|| App::new().service(index))
-        .bind(format!("127.0.0.1:{}", PORT))?
+        .bind(format!("127.0.0.1:{}", port))?
         .run()
         .await
 }
