@@ -1,0 +1,1 @@
+web: ./target/release/jex_compiler_server
