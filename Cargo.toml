@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 actix-web = "3"
-tokio = { version = "0.2", features = ["time", "process", "fs"] }
+tokio = { version = "0.2", features = ["time", "process", "fs", "time"] }
 log = "0.4.0"
 env_logger = "0.8.4"
 random-string = "1.0"

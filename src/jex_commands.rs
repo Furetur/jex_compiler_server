@@ -1,6 +1,6 @@
 use crate::constants::{
-    COMPILED_CODE_DATA_FOLDER, JEX_COMPILER_FILE, JEX_VM_FILE, RUNTIME_DATA_FOLDER,
-    SOURCE_CODE_DATA_FOLDER,
+    COMPILED_CODE_DATA_FOLDER, JEX_COMPILER_FILE, JEX_COMPILE_TIMEOUT, JEX_EXEC_TIMEOUT,
+    JEX_VM_FILE, RUNTIME_DATA_FOLDER, SOURCE_CODE_DATA_FOLDER,
 };
 use crate::jex_commands::InternalErr::FailedToRunVm;
 use crate::run_command::CommandError::{RunFailure, StdioDecodingFailed, UnsuccessfulExitCode};
@@ -9,6 +9,7 @@ use crate::utils::random_string;
 use std::fmt::Formatter;
 use std::io::Error;
 use tokio::process::Command;
+use tokio::time::Duration;
 
 pub enum RunJexError {
     InternalErr(InternalErr),
@@ -86,6 +87,9 @@ pub async fn run_jex(code: String) -> Result<String, RunJexError> {
             }
             StdioDecodingFailed(e) => RunJexError::InternalErr(InternalErr::FailedToRunCompiler(e)),
             UnsuccessfulExitCode(e) => RunJexError::UserCompilationError(e),
+            CommandError::Timeout => RunJexError::InternalErr(InternalErr::FailedToRunCompiler(
+                "Compiler timed out".to_string(),
+            )),
         });
     }
     // try to run it
@@ -95,6 +99,10 @@ pub async fn run_jex(code: String) -> Result<String, RunJexError> {
         Err(RunFailure(e)) => Err(RunJexError::InternalErr(FailedToRunVm(e.to_string()))),
         Err(StdioDecodingFailed(e)) => Err(RunJexError::InternalErr(FailedToRunVm(e.to_string()))),
         Err(UnsuccessfulExitCode(e)) => Err(RunJexError::UserExecutionError(e)),
+        Err(CommandError::Timeout) => Err(RunJexError::UserExecutionError(format!(
+            "Run time exceeded {} secs.",
+            JEX_EXEC_TIMEOUT
+        ))),
     }
 }
 
@@ -103,7 +111,7 @@ async fn compile_jex_file(from: String, to: String) -> Result<String, CommandErr
 
     let mut command = Command::new("java");
     command.arg("-jar").arg(compiler_path).arg(from).arg(to);
-    run_command(&mut command).await
+    run_command(&mut command, Duration::from_secs(JEX_COMPILE_TIMEOUT)).await
 }
 
 async fn run_jex_compiled_file(from: String) -> Result<String, CommandError> {
@@ -111,5 +119,5 @@ async fn run_jex_compiled_file(from: String) -> Result<String, CommandError> {
 
     let mut command = Command::new(vm_command);
     command.arg(from);
-    run_command(&mut command).await
+    run_command(&mut command, Duration::from_secs(JEX_EXEC_TIMEOUT)).await
 }
