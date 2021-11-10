@@ -22,6 +22,7 @@ async fn main() -> std::io::Result<()> {
 
     let port = std::env::var("PORT").expect("Could not get PORT env variable");
 
+    println!("Port is {}", port);
     HttpServer::new(|| App::new().service(index))
         .bind(format!("127.0.0.1:{}", port))?
         .run()
