@@ -107,7 +107,7 @@ pub async fn run_jex(code: String) -> Result<String, RunJexError> {
 }
 
 async fn compile_jex_file(from: String, to: String) -> Result<String, CommandError> {
-    let compiler_path = format!("res/{}", JEX_COMPILER_FILE);
+    let compiler_path = format!("./res/{}", JEX_COMPILER_FILE);
 
     let mut command = Command::new("java");
     command.arg("-jar").arg(compiler_path).arg(from).arg(to);
