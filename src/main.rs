@@ -20,11 +20,12 @@ async fn main() -> std::io::Result<()> {
 
     create_jex_folders().await;
 
+    let host = std::env::var("HOST").unwrap_or("127.0.0.1".to_string());
     let port = std::env::var("PORT").expect("Could not get PORT env variable");
 
-    println!("Port is {}", port);
+    println!("Listening on {}:{}", host, port);
     HttpServer::new(|| App::new().service(index))
-        .bind(format!("127.0.0.1:{}", port))?
+        .bind(format!("{}:{}", host, port))?
         .run()
         .await
 }
