@@ -47,14 +47,14 @@ impl std::fmt::Display for InternalErr {
 
 pub async fn create_jex_folders() {
     tokio::fs::create_dir_all(format!(
-        "{}/{}",
+        "./{}/{}",
         RUNTIME_DATA_FOLDER, SOURCE_CODE_DATA_FOLDER
     ))
     .await
     .expect("Failed to create dir for source code");
 
     tokio::fs::create_dir_all(format!(
-        "{}/{}",
+        "./{}/{}",
         RUNTIME_DATA_FOLDER, COMPILED_CODE_DATA_FOLDER
     ))
     .await
@@ -64,11 +64,11 @@ pub async fn create_jex_folders() {
 pub async fn run_jex(code: String) -> Result<String, RunJexError> {
     let request_id = random_string(6);
     let source_filepath = format!(
-        "{}/{}/{}.txt",
+        "./{}/{}/{}.txt",
         RUNTIME_DATA_FOLDER, SOURCE_CODE_DATA_FOLDER, request_id
     );
     let compiled_filepath = format!(
-        "{}/{}/{}",
+        "./{}/{}/{}",
         RUNTIME_DATA_FOLDER, COMPILED_CODE_DATA_FOLDER, request_id
     );
 
