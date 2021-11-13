@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_web::{post, App, HttpResponse, HttpServer, Responder};
 use jex_compiler_server::jex_commands::{create_jex_folders, run_jex, RunJexError};
 
@@ -24,7 +25,11 @@ async fn main() -> std::io::Result<()> {
     let port = std::env::var("PORT").expect("Could not get PORT env variable");
 
     println!("Listening on {}:{}", host, port);
-    HttpServer::new(|| App::new().service(index))
+
+    HttpServer::new(|| {
+        let cors = Cors::permissive().allow_any_header().allow_any_origin().allow_any_method();
+        App::new().wrap(cors).service(index)
+    })
         .bind(format!("{}:{}", host, port))?
         .run()
         .await
