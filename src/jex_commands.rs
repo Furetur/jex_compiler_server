@@ -110,7 +110,14 @@ async fn compile_jex_file(from: String, to: String) -> Result<String, CommandErr
     let compiler_path = format!("./res/{}", JEX_COMPILER_FILE);
 
     let mut command = Command::new("java");
-    command.arg("-jar").arg(compiler_path).arg(from).arg(to);
+    command
+        .arg("-jar")
+        .arg("-Xmx300m")
+        .arg("-Xss512k")
+        .arg(compiler_path)
+        .arg(from)
+        .arg(to)
+        .env_remove("JAVA_TOOL_OPTIONS");
     run_command(&mut command, Duration::from_secs(JEX_COMPILE_TIMEOUT)).await
 }
 
